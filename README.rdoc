@@ -1,4 +1,4 @@
-Forked and updated for SDL2 and recent Lua
+Forked and updated for SDL2 and recent Lua.  
 Additionally switched to a cmake build system
 
 -- original README below
