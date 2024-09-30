@@ -24,3 +24,10 @@ target_link_libraries(lua-pong PUBLIC
 )
 
 # add test
+add_executable(test-pong test.c)
+
+target_link_libraries(test-pong PUBLIC 
+    SDL2
+    OpenGL
+    Lua::Lua
+)

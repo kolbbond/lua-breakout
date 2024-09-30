@@ -14,8 +14,8 @@ function Rect:draw()
 end
 
 function Rect:intersects(other)
-    if math.abs(self.x - other.x) < (self.width + other.width) and
-        math.abs(self.y - other.y) < (self.height + other.height) then
+    if math.abs(self.x - other.x) < (self.width + other.width)/2 and
+        math.abs(self.y - other.y) < (self.height + other.height)/2 then
         return true
     else
         return false
@@ -121,9 +121,9 @@ end
 
 function all_tests()
     describe("Rect", function()
-        r1 = Rect:new { x = 0, y = 0, w = 3, h = 1 }
-        r2 = Rect:new { x = 1, y = 0, w = 2, h = 2 }
-        r3 = Rect:new { x = 4, y = 0, w = 2, h = 2 }
+        r1 = Rect:new { x = 0, y = 0, width = 3, height = 1 }
+        r2 = Rect:new { x = 1, y = 0, width = 2, height = 2 }
+        r3 = Rect:new { x = 4, y = 0, width = 2, height = 2 }
 
         it("intersects two rectangles", function()
             return r1:intersects(r2) == true
