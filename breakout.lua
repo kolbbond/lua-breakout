@@ -37,16 +37,16 @@ function Block:new(o)
 end
 
 function Block:init()
-    self.rect = Rect:new { width = 0.05, height = 0.3 }
+    self.rect = Rect:new { x = self.x, y = self.y, width = 0.25, height = 0.03 }
 
-    self.rect.x = 0;
-    self.rect.y = 0.5;
+    -- block base color
     self.rect.red = 0.5
     self.rect.green = 0.0
     self.rect.blue = 1.0
 end
 
 function Block:draw()
+    self.rect.x = self.x
     self.rect.y = self.y
     self.rect:draw()
 end
@@ -128,14 +128,12 @@ function Ball:move()
     end
 
     -- check hit against blocks
-    --[[
-    for _, block in blocks do
+    for _, block in pairs(blocks) do
         if block.rect:intersects(newrect) then
             self.vx = self.vx * (-1.0 + vb)
             self.vy = self.vy * (-1.0 + vb)
         end
     end
-    --]]
 
     -- check hit against boundaries
     if newrect.x > xbound or newrect.x < -xbound then
@@ -161,7 +159,9 @@ end
 
 paddle = Paddle:new { x = 0, y = -0.8 }
 ball = Ball:new { x = 0.0, y = 0.1, vx = -0.015, vy = 0.015 }
-blocks = {};
+blocks = { Block:new { x = -0.2, y = 0.05 }, Block:new { x = 0.2, y = 0.05 } };
+
+-- create blocks
 
 -- game loop pulse
 function pulse()
@@ -170,6 +170,10 @@ function pulse()
 
     ball:move()
     ball:draw()
+
+    for _, block in pairs(blocks) do
+        block:draw();
+    end
 end
 
 ---------------------------
