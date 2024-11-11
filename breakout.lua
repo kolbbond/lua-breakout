@@ -1,5 +1,8 @@
 math.randomseed(os.time())
 
+-- globals
+xbound = 1; ybound = 1;
+
 Rect = { x = 0, y = 0, width = 0.3, height = 0.3, red = 0.0, green = 1.0, blue = 0.0 }
 
 function Rect:new(o)
@@ -51,7 +54,7 @@ end
 ---------------------------
 -- paddle
 
-Paddle = { y = 0, side = 1 }
+Paddle = { x = 0, y = 0 }
 
 function Paddle:new(o)
     o = o or {}
@@ -62,38 +65,43 @@ function Paddle:new(o)
 end
 
 function Paddle:init()
-    self.rect = Rect:new { y = y, width = 0.05, height = 0.3 }
+    self.rect = Rect:new { x = x, y = y, width = 0.3, height = 0.03 }
 
-    if self.side == 1 then
-        self.rect.x = -0.9
-        self.rect.green = 1.0
-    else
-        self.rect.x = 0.9
-        self.rect.green = 0.0
-        self.rect.blue = 1.0
-    end
+    -- position
+    self.rect.x = 0.0
+    self.rect.y = -1
+
+    -- color
+    self.rect.red = 1.0
+    self.rect.green = 0.0
+    self.rect.blue = 1.0
 end
 
 function Paddle:draw()
+    self.rect.x = self.x
     self.rect.y = self.y
     self.rect:draw()
 end
 
 function Paddle:move()
-    if self.side == 1 then
-        -- player
-        if up_pressed() then self.y = self.y + 0.01 end
-        if down_pressed() then self.y = self.y - 0.01 end
-    else
-        -- cpu
-        if self.y < ball.y then self.y = self.y + 0.01 end
-        if self.y > ball.y then self.y = self.y - 0.01 end
+    -- player
+    -- check C move functions
+    vp = 0.04;
+    if left_pressed() then self.x = self.x - vp end
+    if right_pressed() then self.x = self.x + vp end
+
+    -- check paddle against bounds
+    if self.x < -xbound then
+        self.x = -xbound + 0.1
+    end
+    if self.x + self.rect.width / 2 > xbound then
+        self.x = xbound - self.rect.width / 2 - 0.1
     end
 end
 
 ---------------------------
 
-Ball = { x = 0, y = 0, vx = 0.0, vy = 0.0 }
+Ball = { x = 0, y = 0.1, vx = 0.0, vy = 0.0 }
 
 function Ball:new(o)
     o = o or {}
@@ -112,14 +120,33 @@ function Ball:move()
     newrect.x = newrect.x + self.vx
     newrect.y = newrect.y + self.vy
 
-    -- check hit
-    for _, paddle in pairs(paddles) do
-        if paddle.rect:intersects(newrect) then
-            self.vx = self.vx * (-1.0 + math.random(-5, 5) * 0.1)
-            self.vy = self.vy * (-1.0 + math.random(-5, 5) * 0.1)
-        end
+    -- check hit against paddle
+    vb = 0.1; -- ball acceleration
+    if paddle.rect:intersects(newrect) then
+        self.vx = self.vx * (-1.0 + vb)
+        self.vy = self.vy * (-1.0 + vb)
     end
 
+    -- check hit against blocks
+    --[[
+    for _, block in blocks do
+        if block.rect:intersects(newrect) then
+            self.vx = self.vx * (-1.0 + vb)
+            self.vy = self.vy * (-1.0 + vb)
+        end
+    end
+    --]]
+
+    -- check hit against boundaries
+    if newrect.x > xbound or newrect.x < -xbound then
+        self.vx = self.vx * (-1.0 + vb)
+    end
+    if newrect.y > ybound or newrect.y < -ybound then
+        self.vy = self.vy * (-1.0 + vb)
+    end
+    -- @hey: bottom boundary is fail
+
+    -- change position as R + dR
     self.x = self.x + self.vx
     self.y = self.y + self.vy
 end
@@ -132,6 +159,20 @@ end
 
 ---------------------------
 
+paddle = Paddle:new { x = 0, y = -0.8 }
+ball = Ball:new { x = 0.0, y = 0.1, vx = -0.015, vy = 0.015 }
+blocks = {};
+
+-- game loop pulse
+function pulse()
+    paddle:move()
+    paddle:draw()
+
+    ball:move()
+    ball:draw()
+end
+
+---------------------------
 function describe(class, func)
     print(class)
     func()
@@ -160,21 +201,4 @@ function all_tests()
             return r1:intersects(r3) == false
         end)
     end)
-end
-
----------------------------
-
-paddles = { Paddle:new { side = 1 }, Paddle:new { side = 2 } }
-ball = Ball:new { x = 0.0, y = 0.0, vx = -0.005, vy = 0.005 }
-blocks = {};
-
--- game loop pulse
-function pulse()
-    for _, paddle in pairs(paddles) do
-        paddle:move()
-        paddle:draw()
-    end
-
-    ball:move()
-    ball:draw()
 end

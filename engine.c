@@ -27,11 +27,11 @@ static int draw_rectangle(lua_State* L) {
 	glColor3f(red, green, blue);
 	glVertex2f(0.0f, 0.0f);
 	glVertex2f(width, 0.0f);
-	glColor3f(max(0, red - 0.7), max(0, green - 0.7), max(0, blue - 0.7));
+	//	glColor3f(max(0, red - 0.7), max(0, green - 0.7), max(0, blue - 0.7));
+	glColor3f(max(0, red), max(0, green), max(0, blue));
 	glVertex2f(width, height);
 	glVertex2f(0.0f, height);
 	glEnd();
-
 }
 
 static int key_pressed(int key) {
@@ -76,6 +76,7 @@ int main(int argc, char* argv[]) {
 	L = luaL_newstate();
 	luaL_openlibs(L);
 
+    // register C functions in lua
 	lua_register(L, "draw_rectangle", draw_rectangle);
 	lua_register(L, "up_pressed", up_pressed);
 	lua_register(L, "down_pressed", down_pressed);
@@ -96,8 +97,8 @@ int main(int argc, char* argv[]) {
 		400,
 		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 
-    // gl context and setup
-    SDL_GL_CreateContext(screen);
+	// gl context and setup
+	SDL_GL_CreateContext(screen);
 	glViewport(0, 0, 400, 400);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(1.0);
@@ -118,11 +119,12 @@ int main(int argc, char* argv[]) {
 	buff[size] = 0;
 	fclose(fp);
 
-	if(luaL_loadbuffer(L, buff, strlen(buff), "pong") != 0 || lua_pcall(L, 0, 0, 0) != 0) {
+	if(luaL_loadbuffer(L, buff, strlen(buff), "breakout") != 0 || lua_pcall(L, 0, 0, 0) != 0) {
 		printf("error loading: %s\n", lua_tostring(L, -1));
 		exit(1);
 	}
 
+    // game loop
 	bool done = false;
 	while(!done) {
 		SDL_Event event;
