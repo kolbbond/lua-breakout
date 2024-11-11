@@ -15,18 +15,18 @@ if(LUA_FOUND)
 endif()
 
 # exec
-add_executable(lua-pong engine.c)
+add_executable(lua-engine engine.c)
 
-target_link_libraries(lua-pong PUBLIC 
+target_link_libraries(lua-engine PUBLIC 
     SDL2
     OpenGL
     Lua::Lua
 )
 
 # add test
-add_executable(test-pong test.c)
+add_executable(test-engine test.c)
 
-target_link_libraries(test-pong PUBLIC 
+target_link_libraries(test-engine PUBLIC 
     SDL2
     OpenGL
     Lua::Lua
