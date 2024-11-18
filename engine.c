@@ -22,7 +22,7 @@ static int draw_rectangle(lua_State* L) {
 	float blue = lua_tonumber(L, 7);
 
 	glLoadIdentity();
-	glTranslatef(x, y, 0.0f);
+	glTranslatef(x-width/2, y-height/2, 0.0f);
 	glBegin(GL_QUADS);
 	glColor3f(red, green, blue);
 	glVertex2f(0.0f, 0.0f);

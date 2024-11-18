@@ -37,18 +37,23 @@ function Block:new(o)
 end
 
 function Block:init()
-    self.rect = Rect:new { x = self.x, y = self.y, width = 0.25, height = 0.03 }
+    self.rect = Rect:new { x = self.x, y = self.y, width = self.width, height = self.height }
 
     -- block base color
     self.rect.red = 0.5
     self.rect.green = 0.0
     self.rect.blue = 1.0
+
+    -- properties
+    self.alive = true;
 end
 
 function Block:draw()
     self.rect.x = self.x
     self.rect.y = self.y
-    self.rect:draw()
+    if (self.alive) then
+        self.rect:draw()
+    end
 end
 
 ---------------------------
@@ -129,9 +134,12 @@ function Ball:move()
 
     -- check hit against blocks
     for _, block in pairs(blocks) do
-        if block.rect:intersects(newrect) then
-            self.vx = self.vx * (-1.0 + vb)
-            self.vy = self.vy * (-1.0 + vb)
+        if (block.alive) then
+            if block.rect:intersects(newrect) then
+                self.vx = self.vx * (-1.0 + vb)
+                self.vy = self.vy * (-1.0 + vb)
+                block.alive = false;
+            end
         end
     end
 
@@ -158,10 +166,26 @@ end
 ---------------------------
 
 paddle = Paddle:new { x = 0, y = -0.8 }
-ball = Ball:new { x = 0.0, y = 0.1, vx = -0.015, vy = 0.015 }
-blocks = { Block:new { x = -0.2, y = 0.05 }, Block:new { x = 0.2, y = 0.05 } };
+ball = Ball:new { x = 0.0, y = -0.1, vx = -0.055, vy = -0.055 }
+
+--blocks = { Block:new { x = -0.2, y = 0.05 }, Block:new { x = 0.2, y = 0.05 } };
 
 -- create blocks
+tx = 2;
+ty = 1;
+numbx = 5;
+numby = 20;
+dx = tx / numbx; dy = ty / numby;
+blocks = {};
+for i = 1, numby do
+    for j = 1, numbx do
+        idx = j + i * numbx;
+        bx = -1 + (dx * (j - 1) + dx / 2);
+        by = 1 - (dy * (i - 1) + dy / 2);
+
+        blocks[idx] = Block:new { x = bx, y = by, width = dx * 0.90, height = dy * 0.90 };
+    end
+end
 
 -- game loop pulse
 function pulse()
